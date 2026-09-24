@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0A6A86">
+<style>[hidden]{display:none!important}img{max-width:100%}</style>
+<title>PASTELL(M) pédiatrique</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Atkinson+Hyperlegible+Mono:wght@500;700&family=Barlow+Condensed:wght@600;700&display=swap">
+<style>
+:root{
+  --bg:#F2F5F7; --surface:#FFFFFF; --ink:#15202B; --muted:#586674; --line:#D9E0E6;
+  --accent:#0A6A86; --accent-ink:#FFFFFF; --soft:#E6EEF2;
+  --warn-bg:#FFF4D6; --warn-ink:#6B4A00; --info-bg:#E4F0F6; --info-ink:#12475A;
+  --ok:#1F7A45; --bad:#B42318; --bad-bg:#FDE7E5;
+  --l-vaso:#D8CCF3; --l-benzo:#F6A94A; --l-anti:#A2CC97; --l-ind:#F6E78A; --l-nmb:#F4A19E; --l-gen:#E1E6EB;
+  --label-ink:#101418;
+  --display:"Barlow Condensed","Arial Narrow",sans-serif;
+  --body:"Atkinson Hyperlegible",system-ui,sans-serif;
+  --mono:"Atkinson Hyperlegible Mono",ui-monospace,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --bg:#0E141A; --surface:#162029; --ink:#E7EDF2; --muted:#96A4B1; --line:#27333E;
+    --accent:#4DB4D1; --accent-ink:#06222C; --soft:#1D2A35;
+    --warn-bg:#3A2F10; --warn-ink:#F4D58A; --info-bg:#132C38; --info-ink:#A6D6E8;
+    --ok:#5CCB8A; --bad:#FF8A80; --bad-bg:#3B1714;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#0E141A; --surface:#162029; --ink:#E7EDF2; --muted:#96A4B1; --line:#27333E;
+  --accent:#4DB4D1; --accent-ink:#06222C; --soft:#1D2A35;
+  --warn-bg:#3A2F10; --warn-ink:#F4D58A; --info-bg:#132C38; --info-ink:#A6D6E8;
+  --ok:#5CCB8A; --bad:#FF8A80; --bad-bg:#3B1714;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font:16px/1.45 var(--body);margin:0}
+.wrap{max-width:760px;margin:0 auto;padding-inline:16px;padding-block:16px 40px;display:flex;flex-direction:column;gap:16px}
+header h1{font:700 30px/1 var(--display);letter-spacing:.02em;margin:0;text-transform:uppercase}
+header p{margin:4px 0 0;color:var(--muted);font-size:14px}
+.input{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px;display:flex;flex-direction:column;gap:14px;position:sticky;top:env(safe-area-inset-top,0px);z-index:5;box-shadow:0 6px 18px -14px rgba(0,0,0,.5)}
+.row{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end}
+.field{display:flex;flex-direction:column;gap:4px}
+.field label{font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:700}
+.stepper{display:flex;align-items:stretch;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--soft)}
+.stepper button{width:48px;border:0;background:transparent;color:var(--ink);font:700 24px var(--mono);cursor:pointer}
+.stepper button:active{background:var(--line)}
+.stepper input::-webkit-inner-spin-button,.stepper input::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
+.stepper input{-moz-appearance:textfield;width:64px;text-align:center;border:0;border-inline:1px solid var(--line);background:var(--surface);color:var(--ink);font:700 26px var(--mono);padding:6px 0}
+select,.wt input{height:48px;border:1px solid var(--line);border-radius:10px;background:var(--surface);color:var(--ink);font:500 18px var(--mono);padding:0 10px}
+.wt{display:flex;gap:6px}
+.wt input{width:110px}
+.wt button{height:48px;border:1px solid var(--line);border-radius:10px;background:var(--soft);color:var(--muted);padding:0 12px;cursor:pointer;font:inherit}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chips button{border:1px solid var(--line);background:var(--soft);color:var(--ink);border-radius:999px;padding:7px 12px;font:700 14px var(--mono);cursor:pointer;min-width:44px}
+.chips button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.summary{display:flex;flex-wrap:wrap;gap:6px 18px;align-items:baseline;padding-top:12px;border-top:1px dashed var(--line)}
+.summary .big{font:700 28px/1 var(--mono)}
+.summary .lbl{color:var(--muted);font-size:13px}
+.src{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;padding:2px 8px;border-radius:6px;background:var(--soft);color:var(--muted)}
+.alerts{display:flex;flex-direction:column;gap:8px}
+.alert{border-radius:10px;padding:10px 12px;font-size:14px}
+.alert.warn{background:var(--warn-bg);color:var(--warn-ink)}
+.alert.info{background:var(--info-bg);color:var(--info-ink)}
+.alert.bad{background:var(--bad-bg);color:var(--bad);font-weight:700}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.item{display:grid;grid-template-columns:minmax(150px,210px) 1fr auto;gap:4px 14px;align-items:center;padding:10px 14px;border-top:1px solid var(--line)}
+.item:first-child{border-top:0}
+.tag{font:700 17px/1.1 var(--display);text-transform:uppercase;letter-spacing:.03em;color:var(--label-ink);padding:7px 10px;border-radius:4px;justify-self:start}
+.tag small{font:600 13px var(--display);text-transform:none;letter-spacing:0;margin-left:4px;opacity:.8}
+.g{background:var(--l-gen)} .vaso{background:var(--l-vaso)} .benzo{background:var(--l-benzo)} .anti{background:var(--l-anti)} .ind{background:var(--l-ind)}
+.nmb{background:repeating-linear-gradient(135deg,var(--l-nmb) 0 10px,#F7B9B6 10px 20px)}
+.formula{color:var(--muted);font:500 14px var(--mono)}
+.res{text-align:right;font:700 24px/1.1 var(--mono);white-space:nowrap}
+.res .u{font-size:15px;font-weight:500;color:var(--muted);margin-left:3px}
+.sub{grid-column:2 / -1;font-size:14px;color:var(--muted);display:flex;flex-wrap:wrap;gap:4px 12px}
+.sub b{color:var(--ink);font-family:var(--mono)}
+.pill{font:700 11px var(--body);text-transform:uppercase;letter-spacing:.06em;padding:2px 7px;border-radius:999px;background:var(--warn-bg);color:var(--warn-ink);vertical-align:middle}
+.dim{opacity:.55}
+h2{font:700 15px var(--display);text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin:6px 0 -6px}
+footer{font-size:13px;color:var(--muted);display:flex;flex-direction:column;gap:8px}
+.tests{font-weight:700}
+.tests.ok{color:var(--ok)} .tests.ko{color:var(--bad)}
+details summary{cursor:pointer}
+details ul{margin:6px 0 0;padding-left:18px;font-family:var(--mono);font-size:12px}
+@media (max-width:560px){
+  .item{grid-template-columns:1fr auto}
+  .formula{grid-column:1 / -1;order:3}
+  .sub{grid-column:1 / -1;order:4}
+  .input{position:static}
+}
+</style>
+
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>PASTELL(M)</h1>
+    <p>Calcul pédiatrique automatique à partir de l'âge. Entrez un poids connu pour remplacer l'estimation.</p>
+  </header>
+
+  <section class="input" aria-label="Saisie patient">
+    <div class="row">
+      <div class="field">
+        <label for="years">Âge (ans)</label>
+        <div class="stepper">
+          <button type="button" id="yMinus" aria-label="Moins un an">−</button>
+          <input id="years" type="number" inputmode="numeric" min="0" max="16" step="1" value="4">
+          <button type="button" id="yPlus" aria-label="Plus un an">+</button>
+        </div>
+      </div>
+      <div class="field">
+        <label for="months">+ mois</label>
+        <select id="months"></select>
+      </div>
+      <div class="field">
+        <label for="weight">Poids connu (kg)</label>
+        <div class="wt">
+          <input id="weight" type="number" inputmode="decimal" min="1" max="150" step="0.5" placeholder="—">
+          <button type="button" id="wClear" hidden>Effacer</button>
+        </div>
+      </div>
+    </div>
+    <div class="chips" id="chips" aria-label="Âges rapides"></div>
+    <div class="summary" id="summary" aria-live="polite"></div>
+  </section>
+
+  <div class="alerts" id="alerts"></div>
+
+  <div id="results"></div>
+
+  <footer>
+    <div>Aide au calcul selon la carte PASTELL(M). Ne remplace ni le protocole du service ni le double contrôle avant administration. </div>
+  </footer>
+</div>
+
+<script>
+(function (root) {
+  "use strict";
+  var rnd = function (x, d) { var f = Math.pow(10, d); return Math.round((x + 1e-9) * f) / f; };
+  // Affichage : <1 -> 2 décimales, <100 -> 1 décimale, sinon entier. Point décimal comme sur la carte.
+  function fmt(x) {
+    if (x == null || !isFinite(x)) return "—";
+    var d = x < 1 ? 2 : (x < 100 ? 1 : 0);
+    return String(rnd(x, d));
+  }
+  function fmtMl(x) { return x < 1 ? String(rnd(x, 2)) : String(rnd(x, 1)); }
+
+  // Strictement la carte PASTELL(M)
+  function igelCard(age) { return age == null ? null : (age < 1 ? 1 : (age < 7 ? 2 : 2.5)); }
+  function compute(input) {
+    var age = input.age, override = input.weight;
+    if (age != null && (!isFinite(age) || age < 0 || age > 16)) return { error: "Âge hors plage (0 à 16 ans)." };
+    if (override != null && (!isFinite(override) || override <= 0 || override > 150)) return { error: "Poids hors plage (jusqu'à 150 kg)." };
+    if (age == null && override == null) return { error: "Saisissez un âge ou un poids." };
+    var est = age == null ? null : rnd(age * 2 + 8, 1);
+    var w = override != null ? override : est;
+    return {
+      age: age, w: w, est: est, weightSource: override != null ? "saisi" : "estimé",
+      adr: 0.01 * w, glu: 0.2 * w,
+      tube: age == null ? null : rnd(age / 4 + 3.5, 2),
+      elec: { j2: rnd(2 * w, 1), j4: rnd(4 * w, 1) },
+      fluid: { lo: 10 * w, hi: 20 * w, clo: 5 * w, chi: 10 * w },
+      mida: 0.1 * w, diaz: w < 15 ? 5 : 10, atro: 0.02 * w, etom: 0.3 * w,
+      keta: { lo: 1 * w, hi: 3 * w }, prop: 3 * w, rocu: 1 * w,
+      igel: igelCard(age), txa: 15 * w
+    };
+  }
+
+  // ---------- Auto-tests ----------
+  function selfTest() {
+    var out = [];
+    function eq(name, got, exp) {
+      var ok = (typeof exp === "number") ? Math.abs(got - exp) < 1e-6 : JSON.stringify(got) === JSON.stringify(exp);
+      out.push({ name: name, ok: ok, got: got, exp: exp });
+    }
+    var a4 = compute({ age: 4 });
+    eq("4 ans : poids", a4.w, 16);
+    eq("4 ans : adrénaline", a4.adr, 0.16);
+    eq("4 ans : sucre", a4.glu, 3.2);
+    eq("4 ans : tube", a4.tube, 4.5);
+    eq("4 ans : 2 J/kg", a4.elec.j2, 32);
+    eq("4 ans : 4 J/kg", a4.elec.j4, 64);
+    eq("4 ans : liquide 10-20", [a4.fluid.lo, a4.fluid.hi], [160, 320]);
+    eq("4 ans : liquide 5-10", [a4.fluid.clo, a4.fluid.chi], [80, 160]);
+    eq("4 ans : midazolam", a4.mida, 1.6);
+    eq("4 ans : diazepam", a4.diaz, 10);
+    eq("4 ans : atropine", a4.atro, 0.32);
+    eq("4 ans : etomidate", a4.etom, 4.8);
+    eq("4 ans : ketamine", [a4.keta.lo, a4.keta.hi], [16, 48]);
+    eq("4 ans : propofol", a4.prop, 48);
+    eq("4 ans : rocuronium", a4.rocu, 16);
+    eq("4 ans : iGel", a4.igel, 2);
+    eq("4 ans : TXA", a4.txa, 240);
+    var a1 = compute({ age: 1 });
+    eq("1 an : poids", a1.w, 10);
+    eq("1 an : tube", a1.tube, 3.75);
+    eq("1 an : iGel", a1.igel, 2);
+    eq("1 an : diazepam", a1.diaz, 5);
+    eq("3 ans : tube", compute({ age: 3 }).tube, 4.25);
+    eq("7 ans : poids", compute({ age: 7 }).w, 22);
+    eq("7 ans : iGel", compute({ age: 7 }).igel, 2.5);
+    eq("6 ans : iGel", compute({ age: 6 }).igel, 2);
+    eq("3 ans (14 kg) : diazepam 5", compute({ age: 3 }).diaz, 5);
+    eq("3.5 ans (15 kg) : diazepam 10", compute({ age: 3.5 }).diaz, 10);
+    var nn = compute({ age: 0 });
+    eq("NN : poids carte 8 kg", nn.w, 8);
+    eq("NN : iGel 1", nn.igel, 1);
+    eq("NN : tube 3.5", nn.tube, 3.5);
+    eq("12 ans : poids 32", compute({ age: 12 }).w, 32);
+    eq("12 ans : TXA 480", compute({ age: 12 }).txa, 480);
+    eq("Poids saisi 60 kg : TXA 900 (pas de plafond)", compute({ weight: 60 }).txa, 900);
+    eq("Poids saisi prioritaire", compute({ age: 4, weight: 20 }).w, 20);
+    eq("Poids seul : pas de tube", compute({ weight: 20 }).tube, null);
+    eq("Âge négatif refusé", !!compute({ age: -1 }).error, true);
+    eq("Âge 20 refusé", !!compute({ age: 20 }).error, true);
+    eq("Aucune saisie refusée", !!compute({}).error, true);
+    eq("Format 0.16", fmt(0.16), "0.16");
+    eq("Format 4.8", fmt(4.8), "4.8");
+    eq("Format 1", fmt(1.0), "1");
+    eq("Format 240", fmt(240), "240");
+    eq("Format 0.1×13 = 1.3", fmt(0.1 * 13), "1.3");
+    eq("Format 0.3×23 = 6.9", fmt(0.3 * 23), "6.9");
+    return out;
+  }
+
+  var api = { compute: compute, fmt: fmt, fmtMl: fmtMl, selfTest: selfTest };
+  if (typeof module !== "undefined" && module.exports) module.exports = api; else root.PASTELL = api;
+})(this);
+
+</script>
+<script>
+(function(){
+  var P = window.PASTELL, $ = function(id){return document.getElementById(id);};
+  var yEl=$("years"), mEl=$("months"), wEl=$("weight");
+  for (var i=0;i<12;i++){ var o=document.createElement("option"); o.value=i; o.textContent=i+" m"; mEl.appendChild(o); }
+  var QUICK=[["NN",0,0],["3 m",0,3],["6 m",0,6],["1 an",1,0],["2",2,0],["3",3,0],["4",4,0],["5",5,0],["6",6,0],["7",7,0],["8",8,0],["10",10,0],["12",12,0]];
+  var chips=$("chips");
+  QUICK.forEach(function(q){ var b=document.createElement("button"); b.type="button"; b.textContent=q[0]; b.dataset.y=q[1]; b.dataset.m=q[2];
+    b.addEventListener("click",function(){ yEl.value=q[1]; mEl.value=q[2]; update(); }); chips.appendChild(b); });
+  $("yMinus").addEventListener("click",function(){ yEl.value=Math.max(0,(parseInt(yEl.value,10)||0)-1); update(); });
+  $("yPlus").addEventListener("click",function(){ yEl.value=Math.min(16,(parseInt(yEl.value,10)||0)+1); update(); });
+  $("wClear").addEventListener("click",function(){ wEl.value=""; update(); });
+  [yEl,mEl,wEl].forEach(function(el){ el.addEventListener("input",update); });
+
+  var f=P.fmt, fm=P.fmtMl;
+  function esc(s){return String(s).replace(/[&<>]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;"}[c];});}
+  function item(cls,name,route,formula,res,unit,sub,dim){
+    return '<div class="item'+(dim?' dim':'')+'"><span class="tag '+cls+'">'+name+(route?'<small>'+route+'</small>':'')+'</span>'+
+      '<span class="formula">'+formula+'</span><span class="res">'+res+(unit?'<span class="u">'+unit+'</span>':'')+'</span>'+
+      (sub?'<div class="sub">'+sub+'</div>':'')+'</div>';
+  }
+
+  function update(){
+    var yRaw=yEl.value.trim(), y=yRaw===""?null:parseFloat(yRaw), m=parseInt(mEl.value,10)||0;
+    var age = y==null ? (m?m/12:null) : y + m/12;
+    var wRaw=wEl.value.trim().replace(",","."), w=wRaw===""?null:parseFloat(wRaw);
+    $("wClear").hidden = w==null;
+    Array.prototype.forEach.call(chips.children,function(b){ b.setAttribute("aria-pressed", String(y!==null && +b.dataset.y===y && +b.dataset.m===m)); });
+    var r=P.compute({age:age, weight:w});
+    var al=$("alerts"), res=$("results"), sm=$("summary");
+    if (r.error){ al.innerHTML='<div class="alert bad">'+esc(r.error)+'</div>'; res.innerHTML=""; sm.innerHTML=""; return; }
+    al.innerHTML="";
+    var ageTxt = age==null ? "âge inconnu" : (age<1 ? (m===0?"nouveau-né":m+" mois") : (y+(y>1?" ans":" an")+(m?" "+m+" m":"")));
+    sm.innerHTML='<span class="big">'+f(r.w)+'<span class="u" style="font-size:16px"> kg</span></span><span class="src">'+r.weightSource+'</span><span class="lbl">'+esc(ageTxt)+'</span>';
+    var b1=[
+      item("g","Poids","","(âge × 2) + 8", f(r.w),"kg", w!=null&&r.est!=null?'Carte : <b>'+f(r.est)+' kg</b>':""),
+      item("vaso","Adrénaline","i.v. i.m.","0.01 mg/kg", f(r.adr),"mg",""),
+      item("g","Sucre","i.v.","0.2 g/kg", f(r.glu),"g",""),
+      item("g","Tube","avec ballonnet","(âge / 4) + 3.5", r.tube==null?"—":r.tube,"", r.tube==null?"Âge nécessaire":""),
+      item("g","Électricité","","2 J/kg · 4 J/kg", f(r.elec.j2)+'<span class="u">J</span> · '+f(r.elec.j4),"J",""),
+      item("g","Liquide","i.v.","10–20 ml/kg", f(r.fluid.lo)+'–'+f(r.fluid.hi),"ml",'Selon contexte 5–10 ml/kg : <b>'+f(r.fluid.clo)+'–'+f(r.fluid.chi)+' ml</b>'),
+      item("benzo","Midazolam","i.v.","0.1 mg/kg", f(r.mida),"mg","")
+    ];
+    var b2=[
+      item("benzo","Diazepam","i.r.","&lt; 15 kg = 5 mg · &gt; 15 kg = 10 mg", r.diaz,"mg",""),
+      item("anti","Atropine","i.v.","0.02 mg/kg", f(r.atro),"mg",""),
+      item("ind","Etomidate","i.v.","0.3 mg/kg", f(r.etom),"mg",""),
+      item("ind","Ketamine","ISR i.v.","1–3 mg/kg", f(r.keta.lo)+'–'+f(r.keta.hi),"mg",""),
+      item("ind","Propofol","i.v.","3 mg/kg", f(r.prop),"mg",""),
+      item("nmb","Rocuronium","i.v.","1 mg/kg", f(r.rocu),"mg",""),
+      item("g","iGel","","NN 1 · 1 an 2 · 7 ans 2.5", r.igel==null?"—":r.igel,"", r.igel==null?"Âge nécessaire":""),
+      item("g","TXA","i.v.","15 mg/kg", f(r.txa),"mg","")
+    ];
+    res.innerHTML='<div class="card">'+b1.join("")+'</div><h2 style="margin:16px 0 8px">Sédation · ISR · autres</h2><div class="card">'+b2.join("")+'</div>';
+  }
+
+  // Auto-tests silencieux : bannière uniquement en cas d'échec
+  var tests=P.selfTest(), fails=tests.filter(function(x){return !x.ok;});
+  if (fails.length) document.querySelector(".wrap").insertAdjacentHTML("afterbegin",'<div class="alert bad">Erreur de calcul détectée par les auto-tests. N\'utilisez pas cet outil.</div>');
+  update();
+})();
+</script>
+
+</body>
+</html>
