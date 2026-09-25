@@ -76,12 +76,31 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid 
 .nmb{background:repeating-linear-gradient(135deg,var(--l-nmb) 0 10px,#F7B9B6 10px 20px)}
 .formula{color:var(--muted);font:500 14px var(--mono)}
 .res{text-align:right;font:700 24px/1.1 var(--mono);white-space:nowrap}
+.res.txt{font-size:18px;white-space:normal;overflow-wrap:anywhere}
 .res .u{font-size:15px;font-weight:500;color:var(--muted);margin-left:3px}
 .sub{grid-column:2 / -1;font-size:14px;color:var(--muted);display:flex;flex-wrap:wrap;gap:4px 12px}
 .sub b{color:var(--ink);font-family:var(--mono)}
 .pill{font:700 11px var(--body);text-transform:uppercase;letter-spacing:.06em;padding:2px 7px;border-radius:999px;background:var(--warn-bg);color:var(--warn-ink);vertical-align:middle}
 .dim{opacity:.55}
 h2{font:700 15px var(--display);text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin:6px 0 -6px}
+.tabs{display:flex;gap:4px;background:var(--soft);border:1px solid var(--line);border-radius:12px;padding:4px}
+.tabs button{flex:1;border:0;background:transparent;color:var(--muted);font:700 16px var(--display);text-transform:uppercase;letter-spacing:.06em;padding:10px 8px;border-radius:9px;cursor:pointer}
+.tabs button[aria-selected="true"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.15)}
+.strip{display:flex;gap:3px;overflow-x:auto;padding-bottom:2px}
+.strip span{flex:1 0 auto;text-align:center;font:500 12px var(--mono);color:var(--muted);padding:6px 6px;border-radius:6px;background:var(--soft);line-height:1.2}
+.strip span b{display:block;font-size:13px;color:var(--ink)}
+.strip span.on{background:var(--accent);color:var(--accent-ink)}
+.strip span.on b{color:var(--accent-ink)}
+.ncol{padding:12px 14px;display:flex;flex-direction:column;gap:10px}
+.ncol p{margin:0;color:var(--muted);font-size:14px}
+.vitals{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1px;background:var(--line)}
+.vt{background:var(--surface);padding:12px 14px;display:flex;flex-direction:column;gap:2px}
+.vt .k{font:700 13px var(--display);text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+.vt .v{font:700 24px/1.1 var(--mono)}
+.vt .v small{font-size:14px;font-weight:500;color:var(--muted);margin-left:3px}
+.vt.hypo{background:var(--bad-bg)} .vt.hypo .k,.vt.hypo .v{color:var(--bad)}
+.vt .n{font-size:12px;color:var(--muted)}
+.src-note{font-size:12px;color:var(--muted);margin:0}
 footer{font-size:13px;color:var(--muted);display:flex;flex-direction:column;gap:8px}
 .tests{font-weight:700}
 .tests.ok{color:var(--ok)} .tests.ko{color:var(--bad)}
@@ -131,7 +150,13 @@ details ul{margin:6px 0 0;padding-left:18px;font-family:var(--mono);font-size:12
 
   <div class="alerts" id="alerts"></div>
 
+  <div class="tabs" role="tablist">
+    <button type="button" role="tab" id="tabDoses" aria-selected="true">Doses PASTELL</button>
+    <button type="button" role="tab" id="tabNormes" aria-selected="false">Normes &amp; matériel</button>
+  </div>
+
   <div id="results"></div>
+  <div id="normes" hidden></div>
 
   <footer>
     <div>Aide au calcul selon la carte PASTELL(M). Ne remplace ni le protocole du service ni le double contrôle avant administration. </div>
@@ -149,6 +174,35 @@ details ul{margin:6px 0 0;padding-left:18px;font-family:var(--mono);font-size:12
     return String(rnd(x, d));
   }
   function fmtMl(x) { return x < 1 ? String(rnd(x, 2)) : String(rnd(x, 1)); }
+
+  // Tableau HUG (DFEA/SAUP, sept. 2026) : paramètres vitaux et matériel par colonne âge/poids
+  var HUG = [
+    { age:"NN", ageY:0, kg:3, cm:"50", fr:"30–53", fc:"100–205", tas:"60–76", tam:"48–57", tad:"31–45", hypo:"< 60", lame:"1 droite", tube:"3.0", tubeL:"9–9.5", igel:"1", ballon:"450", sngA:"8", sngN:"4–5", sv:"5–6", drain:"10" },
+    { age:"3 mois", ageY:0.25, kg:5, cm:"60", fr:"30–53", fc:"100–180", tas:"72–104", tam:"50–62", tad:"37–56", hypo:"< 70", lame:"1 droite", tube:"3.0", tubeL:"10–10.5", igel:"1.5", ballon:"450", sngA:"8", sngN:"5–6", sv:"6–8", drain:"10–12" },
+    { age:"6 mois", ageY:0.5, kg:7, cm:"70", fr:"30–53", fc:"100–180", tas:"72–104", tam:"50–62", tad:"37–56", hypo:"< 70", lame:"1 droite", tube:"3.0", tubeL:"10.5–11", igel:"1.5", ballon:"450", sngA:"8", sngN:"5–6", sv:"8", drain:"10–12" },
+    { age:"1 an", ageY:1, kg:10, cm:"75", fr:"30–53", fc:"100–180", tas:"86–106", tam:"49–62", tad:"42–63", hypo:null, lame:"1–1.5 droite", tube:"3.5", tubeL:"11–12", igel:"1.5–2", ballon:"450", sngA:"8", sngN:"6–6.5", sv:"8–10", drain:"16–20" },
+    { age:"2 ans", ageY:2, kg:12, cm:"90", fr:"22–37", fc:"98–140", tas:"86–106", tam:"49–62", tad:"42–63", hypo:null, lame:"2 droite/courbe", tube:"4.0", tubeL:"12.5–13.5", igel:"2", ballon:"450", sngA:"10", sngN:"6–6.5", sv:"10", drain:"20–24" },
+    { age:"3 ans", ageY:3, kg:15, cm:"95", fr:"20–28", fc:"80–120", tas:"89–112", tam:"58–69", tad:"46–72", hypo:null, lame:"2 droite/courbe", tube:"4.5", tubeL:"14–15", igel:"2", ballon:"450–750", sngA:"10", sngN:"7–8", sv:"10–12", drain:"20–24" },
+    { age:"5 ans", ageY:5, kg:20, cm:"110", fr:"20–28", fc:"80–120", tas:"89–112", tam:"58–69", tad:"46–72", hypo:null, lame:"2 droite/courbe", tube:"5.0", tubeL:"15.5–16.5", igel:"2", ballon:"750–1000", sngA:"10", sngN:"8", sv:"10–12", drain:"24–32" },
+    { age:"7 ans", ageY:7, kg:25, cm:"125", fr:"18–25", fc:"75–118", tas:"97–115", tam:"66–72", tad:"57–76", hypo:null, lame:"2–3 droite/courbe", tube:"5.5", tubeL:"17–18", igel:"2.5", ballon:"750–1000", sngA:"10", sngN:"8", sv:"12", drain:"28–32" },
+    { age:"10 ans", ageY:10, kg:35, cm:"140", fr:"18–25", fc:"75–118", tas:"102–120", tam:"71–79", tad:"61–80", hypo:null, lame:"2–3 droite/courbe", tube:"6.0", tubeL:"18.5–19.5", igel:"2.5", ballon:"1000", sngA:"12", sngN:"8", sv:"12–14", drain:"32" },
+    { age:"≥ 14 ans", ageY:14, kg:50, cm:"≥ 160", fr:"12–20", fc:"60–100", tas:"110–131", tam:"73–84", tad:"64–83", hypo:"< 90", lame:"3 droite/courbe", tube:"6.0", tubeL:"18.5–19.5", igel:"3", ballon:"1000", sngA:"12", sngN:"8", sv:"14–18", drain:"32" }
+  ];
+  // Colonne la plus proche du poids ; à égalité, la colonne plus petite.
+  function hugColumn(w) {
+    var best = 0;
+    for (var i = 1; i < HUG.length; i++) if (Math.abs(HUG[i].kg - w) < Math.abs(HUG[best].kg - w)) best = i;
+    return best;
+  }
+  function norms(w, age) {
+    var i = hugColumn(w), c = HUG[i], hypo = c.hypo, hypoNote = "";
+    if (hypo == null) {
+      var a = (age != null && age >= 1 && age <= 10) ? age : c.ageY;
+      hypo = "< " + rnd(70 + 2 * a, 1);
+      hypoNote = "70 + (2 × " + rnd(a, 2) + " ans)";
+    }
+    return { i: i, col: c, hypo: hypo, hypoNote: hypoNote, electrodes: w < 25 ? "pédiatriques" : "adultes" };
+  }
 
   // Strictement la carte PASTELL(M)
   function igelCard(age) { return age == null ? null : (age < 1 ? 1 : (age < 7 ? 2 : 2.5)); }
@@ -225,10 +279,22 @@ details ul{margin:6px 0 0;padding-left:18px;font-family:var(--mono);font-size:12
     eq("Format 240", fmt(240), "240");
     eq("Format 0.1×13 = 1.3", fmt(0.1 * 13), "1.3");
     eq("Format 0.3×23 = 6.9", fmt(0.3 * 23), "6.9");
+    eq("HUG 16 kg → colonne 3 ans", norms(16, 4).col.age, "3 ans");
+    eq("HUG 16 kg, 4 ans → hypotension < 78", norms(16, 4).hypo, "< 78");
+    eq("HUG 22 kg → colonne 5 ans", norms(22).col.age, "5 ans");
+    eq("HUG 22.5 kg (égalité) → colonne 5 ans", norms(22.5).col.age, "5 ans");
+    eq("HUG 8 kg → colonne 6 mois", norms(8, 0).col.age, "6 mois");
+    eq("HUG 2 kg → colonne NN", norms(2).col.age, "NN");
+    eq("HUG 3 kg → hypotension < 60", norms(3).hypo, "< 60");
+    eq("HUG 60 kg → ≥ 14 ans, < 90", [norms(60).col.age, norms(60).hypo], ["≥ 14 ans", "< 90"]);
+    eq("HUG 10 kg sans âge → < 72", norms(10).hypo, "< 72");
+    eq("HUG 35 kg → FC 75–118", norms(35).col.fc, "75–118");
+    eq("Électrodes 24 kg pédiatriques", norms(24).electrodes, "pédiatriques");
+    eq("Électrodes 25 kg adultes", norms(25).electrodes, "adultes");
     return out;
   }
 
-  var api = { compute: compute, fmt: fmt, fmtMl: fmtMl, selfTest: selfTest };
+  var api = { compute: compute, norms: norms, HUG: HUG, fmt: fmt, fmtMl: fmtMl, selfTest: selfTest };
   if (typeof module !== "undefined" && module.exports) module.exports = api; else root.PASTELL = api;
 })(this);
 
@@ -245,13 +311,17 @@ details ul{margin:6px 0 0;padding-left:18px;font-family:var(--mono);font-size:12
   $("yMinus").addEventListener("click",function(){ yEl.value=Math.max(0,(parseInt(yEl.value,10)||0)-1); update(); });
   $("yPlus").addEventListener("click",function(){ yEl.value=Math.min(16,(parseInt(yEl.value,10)||0)+1); update(); });
   $("wClear").addEventListener("click",function(){ wEl.value=""; update(); });
+  function setTab(n){ $("tabDoses").setAttribute("aria-selected",String(n==="d")); $("tabNormes").setAttribute("aria-selected",String(n==="n")); $("results").hidden=n!=="d"; $("normes").hidden=n!=="n"; try{localStorage.setItem("pastellTab",n);}catch(e){} }
+  $("tabDoses").addEventListener("click",function(){setTab("d");});
+  $("tabNormes").addEventListener("click",function(){setTab("n");});
   [yEl,mEl,wEl].forEach(function(el){ el.addEventListener("input",update); });
 
   var f=P.fmt, fm=P.fmtMl;
   function esc(s){return String(s).replace(/[&<>]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;"}[c];});}
   function item(cls,name,route,formula,res,unit,sub,dim){
+    var isTxt = typeof res==="string" && /[a-zé]{3,}/i.test(res.replace(/<[^>]*>/g,""));
     return '<div class="item'+(dim?' dim':'')+'"><span class="tag '+cls+'">'+name+(route?'<small>'+route+'</small>':'')+'</span>'+
-      '<span class="formula">'+formula+'</span><span class="res">'+res+(unit?'<span class="u">'+unit+'</span>':'')+'</span>'+
+      '<span class="formula">'+formula+'</span><span class="res'+(isTxt?' txt':'')+'">'+res+(unit?'<span class="u">'+unit+'</span>':'')+'</span>'+
       (sub?'<div class="sub">'+sub+'</div>':'')+'</div>';
   }
 
@@ -263,7 +333,7 @@ details ul{margin:6px 0 0;padding-left:18px;font-family:var(--mono);font-size:12
     Array.prototype.forEach.call(chips.children,function(b){ b.setAttribute("aria-pressed", String(y!==null && +b.dataset.y===y && +b.dataset.m===m)); });
     var r=P.compute({age:age, weight:w});
     var al=$("alerts"), res=$("results"), sm=$("summary");
-    if (r.error){ al.innerHTML='<div class="alert bad">'+esc(r.error)+'</div>'; res.innerHTML=""; sm.innerHTML=""; return; }
+    if (r.error){ al.innerHTML='<div class="alert bad">'+esc(r.error)+'</div>'; res.innerHTML=""; sm.innerHTML=""; $("normes").innerHTML=""; return; }
     al.innerHTML="";
     var ageTxt = age==null ? "âge inconnu" : (age<1 ? (m===0?"nouveau-né":m+" mois") : (y+(y>1?" ans":" an")+(m?" "+m+" m":"")));
     sm.innerHTML='<span class="big">'+f(r.w)+'<span class="u" style="font-size:16px"> kg</span></span><span class="src">'+r.weightSource+'</span><span class="lbl">'+esc(ageTxt)+'</span>';
@@ -286,12 +356,36 @@ details ul{margin:6px 0 0;padding-left:18px;font-family:var(--mono);font-size:12
       item("g","iGel","","NN 1 · 1 an 2 · 7 ans 2.5", r.igel==null?"—":r.igel,"", r.igel==null?"Âge nécessaire":""),
       item("g","TXA","i.v.","15 mg/kg", f(r.txa),"mg","")
     ];
+
+    var N=P.norms(r.w, age), c=N.col;
+    var strip=P.HUG.map(function(h,i){return '<span'+(i===N.i?' class="on"':'')+'><b>'+h.kg+'</b>'+h.age+'</span>';}).join("");
+    function vt(k,v,u,n,cls){return '<div class="vt'+(cls?' '+cls:'')+'"><span class="k">'+k+'</span><span class="v">'+v+(u?'<small>'+u+'</small>':'')+'</span>'+(n?'<span class="n">'+n+'</span>':'')+'</div>';}
+    $("normes").innerHTML=
+      '<div class="card"><div class="ncol"><p>Pour <b style="color:var(--ink)">'+f(r.w)+' kg</b>, colonne la plus proche : <b style="color:var(--ink)">'+c.age+' · '+c.kg+' kg · '+c.cm+' cm</b></p><div class="strip">'+strip+'</div></div></div>'+
+      '<h2 style="margin:16px 0 8px">Signes vitaux normaux</h2><div class="card"><div class="vitals">'+
+        vt("Fréq. respiratoire",c.fr,"/min")+vt("Fréq. cardiaque",c.fc,"/min")+
+        vt("TA systolique",c.tas,"mmHg")+vt("TA moyenne",c.tam,"mmHg")+vt("TA diastolique",c.tad,"mmHg")+
+        vt("Hypotension si TAS",N.hypo,"mmHg",N.hypoNote,"hypo")+
+      '</div></div>'+
+      '<h2 style="margin:16px 0 8px">Matériel</h2><div class="card">'+
+        item("g","Lame","laryngoscope","", c.lame,"","")+
+        item("g","Tube","avec ballonnet","diamètre · longueur", c.tube,"", 'Longueur <b>'+c.tubeL+' cm</b>')+
+        item("g","iGel","supra-glottique","", c.igel,"","")+
+        item("g","Ballon","ventilation","volume min.", c.ballon,"ml","")+
+        item("g","SNG","","aspiration · nutrition", c.sngA+' · '+c.sngN,"CH","")+
+        item("g","Sonde vésicale","","", c.sv,"CH","")+
+        item("g","Drain thoracique","","", c.drain,"CH","")+
+        item("g","Électrodes","défibrillateur","&lt; 25 kg pédiatriques", N.electrodes,"","")+
+        item("g","Intra-osseuse","","", age==null?"—":(age<1?"NIO rose":(age<=3?"NIO rose / EZ-IO":"EZ-IO")),"", 'NIO Infant rose : naissance à 3 ans · EZ-IO dès 1 an : aiguille rose, bleue ou jaune selon l\'épaisseur des tissus (1 repère noir = 5 mm visible au contact de l\'os)')+
+      '</div><p class="src-note" style="margin-top:8px">Source : HUG, Paramètres vitaux et tailles du matériel selon l\'âge et/ou le poids de l\'enfant (DFEA/SAUP, sept. 2026).</p>';
+    var on=document.querySelector('.strip .on'); if(on){var s=on.parentNode; s.scrollLeft=on.offsetLeft-s.offsetLeft-s.clientWidth/2+on.clientWidth/2;}
     res.innerHTML='<div class="card">'+b1.join("")+'</div><h2 style="margin:16px 0 8px">Sédation · ISR · autres</h2><div class="card">'+b2.join("")+'</div>';
   }
 
   // Auto-tests silencieux : bannière uniquement en cas d'échec
   var tests=P.selfTest(), fails=tests.filter(function(x){return !x.ok;});
   if (fails.length) document.querySelector(".wrap").insertAdjacentHTML("afterbegin",'<div class="alert bad">Erreur de calcul détectée par les auto-tests. N\'utilisez pas cet outil.</div>');
+  var saved="d"; try{saved=localStorage.getItem("pastellTab")||"d";}catch(e){} setTab(saved==="n"?"n":"d");
   update();
 })();
 </script>
